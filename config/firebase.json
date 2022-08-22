@@ -1,0 +1,9 @@
+{
+    "apiKey": "AIzaSyCLddRaYd1WeT1YdR7f0vytFszOsQNgkEM",
+    "authDomain": "crossfit-bolzano.firebaseapp.com",
+    "databaseURL": "https://crossfit-bolzano-default-rtdb.europe-west1.firebasedatabase.app",
+    "projectId": "crossfit-bolzano",
+    "storageBucket": "crossfit-bolzano.appspot.com",
+    "messagingSenderId": "881685923206",
+    "appId": "1:881685923206:web:b45fcecd0d60962ff4d807"
+}

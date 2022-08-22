@@ -2,12 +2,11 @@ var express = require("express");
 var router = express.Router();
 
 var userController = require("../../controllers/user.controller");
+const validateEmailAndPassword = require('../../middleware/validate-email-and-password');
+const firebaseAuth = require('../../middleware/firebase-auth');
 
-var { validateUserData } = require("../../middleware/validateUser")
-var { validateUserLogin } = require("../../middleware/validateUser")
-
-
-router.post("/register", validateUserData, userController.register)
-router.post("/login", validateUserLogin, userController.login)
+app.post('/login', validateEmailAndPassword, userController.login);
+app.post('/register', validateEmailAndPassword, userController.register);
+app.get('/users/:id', firebaseAuth, userController.getUser);
 
 module.exports = router;
