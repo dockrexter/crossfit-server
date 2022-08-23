@@ -62,6 +62,10 @@ async function login(req, res) {
             email,
             password
         );
+        const token = await getAdminAuth().createCustomToken(
+            credential.user.uid
+        );
+
         res.status(200).json({ token });
     } catch (error) {
         if (
@@ -78,32 +82,6 @@ async function login(req, res) {
     }
 }
 
-async function getAllUsers(req, res) {
-    const userId = req.params.id;
-    if (!userId) {
-        res.status(400).json({ error: { code: 'no-user-id' } });
-        return;
-    }
-
-    if (userId !== req.token.uid) {
-        res
-            .status(403)
-            .json({ error: { code: 'unauthorized' } });
-    }
-
-    const snapshot = await db
-        .collection('USERS')
-        .get();
-    if (!snapshot.exists) {
-        res
-            .status(404)
-            .json({ error: { code: 'user-not-found' } });
-        return;
-    }
-    const user = snapshot.data();
-
-    res.status(200).json({ secureNote: user.secureNote });
-}
 async function getUser(req, res) {
     const userId = req.params.id;
     if (!userId) {
@@ -118,7 +96,7 @@ async function getUser(req, res) {
     }
 
     const snapshot = await db
-        .collection('USERS')
+        .collection('users')
         .doc(userId)
         .get();
     if (!snapshot.exists) {
@@ -135,7 +113,6 @@ async function getUser(req, res) {
 module.exports = {
     register,
     login,
-    getUser,
-    getAllUsers,
+    getUser
 };
 
