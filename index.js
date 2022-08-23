@@ -15,6 +15,7 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://crossfit-bolzano-default-rtdb.europe-west1.firebasedatabase.app"
 });
+global.db = admin.firestore();
 firebase.initializeApp(firebaseConfig);
 
 const app = express();
@@ -61,7 +62,6 @@ const server = http.createServer(app);
 server.listen(port, () => {
     console.log("backend running at port", port)
 });
-
 
 
 
