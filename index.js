@@ -6,6 +6,7 @@ const http = require('http');
 require('dotenv').config()
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/api/users.router");
+var wodRouter = require("./routes/api/wod.router");
 const admin = require("firebase-admin");
 const serviceAccount = require("./config/crossfit-bolzano-firebase-adminsdk-m3owr-172ce0ee89.json");
 const firebaseConfig = require('./config/firebase.json');
@@ -37,6 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 
 app.use("/api/users", usersRouter);
+app.use("/api/wod", wodRouter);
 
 /**
  * Get port from environment and store in Express.

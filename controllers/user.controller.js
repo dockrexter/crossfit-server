@@ -81,20 +81,14 @@ async function login(req, res) {
 }
 
 async function getUser(req, res) {
-    const userId = req.params.id;
+    const userId = req.body.id;
     if (!userId) {
         res.status(400).json({ error: { code: 'no-user-id' } });
         return;
     }
 
-    if (userId !== req.token.uid) {
-        res
-            .status(403)
-            .json({ error: { code: 'unauthorized' } });
-    }
-
     const snapshot = await db
-        .collection('users')
+        .collection('Users')
         .doc(userId)
         .get();
     if (!snapshot.exists) {
@@ -105,7 +99,7 @@ async function getUser(req, res) {
     }
     const user = snapshot.data();
 
-    res.status(200).json({ secureNote: user.secureNote });
+    res.status(200).json({ user: user });
 }
 
 async function getAllUsers(req, res) {
