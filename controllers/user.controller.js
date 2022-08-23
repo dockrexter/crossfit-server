@@ -62,6 +62,9 @@ async function login(req, res) {
             email,
             password
         );
+        const token = await getAdminAuth().createCustomToken(
+            credential.user.uid
+        );
         res.status(200).json({ token });
     } catch (error) {
         if (
