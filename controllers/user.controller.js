@@ -109,21 +109,26 @@ async function getUser(req, res) {
 }
 
 async function getAllUsers(req, res) {
+    allUsers = []
+    console.log(req.token, "<- I am in the function")
+    const users = db.collection('Users');
+    const snapshot = await users.get();
+    snapshot.forEach(doc => {
+        allUsers.push(doc.data());
+    });
+    // console.log(snapshot.data());
 
-
-    const snapshot = await db
-        .collection('Users')
-        .get();
-    if (!snapshot.exists) {
+    if (allUsers.length == 0) {
         res
             .status(404)
-            .json({ error: { code: 'user-not-found' } });
+            .send({ error: { code: 'user-not-found' } });
         return;
     }
-    const user = snapshot.data();
+    // const user = snapshot.data();
 
-    res.status(200).json({ secureNote: user.secureNote });
+    res.status(200).send({ data: allUsers });
 }
+
 module.exports = {
     register,
     login,
