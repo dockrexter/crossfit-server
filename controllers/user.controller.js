@@ -1,16 +1,12 @@
-const jwt = require("jsonwebtoken");
 const {
     getAuth: getAdminAuth,
 } = require('firebase-admin/auth');
+
 const {
     getAuth: getClientAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
 } = require('firebase/auth');
-// const db = admin.firestore();
-// const { db } = require("../index");
-
-// const db = require('firebase-admin').db();
 
 
 async function register(req, res) {
