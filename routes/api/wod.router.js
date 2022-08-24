@@ -4,7 +4,7 @@ var router = express.Router();
 var wodController = require("../../controllers/wod.controller");
 const firebaseAuth = require('../../middleware/firebase-auth');
 
-router.get('/getWod', firebaseAuth, wodController.getWod);
+router.post('/getWod', firebaseAuth, wodController.getWod);
 router.post('/setWod', firebaseAuth, wodController.setWod);
 
 

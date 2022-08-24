@@ -3,7 +3,7 @@ function dateRange(startDate, endDate, steps = 1) {
     let currentDate = new Date(startDate);
 
     while (currentDate <= new Date(endDate)) {
-        dateArray.push(new Date(currentDate));
+        dateArray.push(new Date(currentDate).toDateString());
         // Use UTC date to prevent problems with time zones and DST
         currentDate.setUTCDate(currentDate.getUTCDate() + steps);
     }
@@ -14,18 +14,38 @@ function dateRange(startDate, endDate, steps = 1) {
 async function getTimeTable(req, res) {
     var { startDate, endDate } = req.body;
     const dates = dateRange(startDate, endDate);
-    const snapshot = await db.collection('newTimeTable')
-        .where("date", "in", dates).get();
-    console.log(dates);
-    if (!snapshot.exists) {
+    var docs = []
+    const queey = await db.collection('newTimeTable').get();
+    docs = queey.docs.map((doc) => {
+
+        if (dates.indexOf(doc.data().date.toDate().toDateString()) !== -1) {
+            const sfRef = db.collection('newTimeTable').doc(doc.id);
+            var obj = {
+                id: doc.id,
+                date: doc.data().date.toDate().toDateString(),
+            }
+            sfRef.listCollections().then((collections) => {
+
+                obj["collections"] = collections
+                console.log(collections);
+
+            }).then(() => {
+                return obj
+            })
+
+
+
+        }
+    });
+    if (docs.length == 0) {
         res
             .status(404)
-            .json({ error: { code: 'wod-not found' } });
+            .json({ error: { code: 'no classes found' } });
+
         return;
     }
-    const wod = snapshot.data();
 
-    res.status(200).json({ wod: wod });
+    res.status(200).json({ docs: docs });
 }
 
 module.exports = {
