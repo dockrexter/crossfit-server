@@ -19,22 +19,9 @@ async function getTimeTable(req, res) {
     docs = queey.docs.map((doc) => {
 
         if (dates.indexOf(doc.data().date.toDate().toDateString()) !== -1) {
-            const sfRef = db.collection('newTimeTable').doc(doc.id);
-            var obj = {
-                id: doc.id,
-                date: doc.data().date.toDate().toDateString(),
-            }
-            sfRef.listCollections().then((collections) => {
-
-                obj["collections"] = collections
-                console.log(collections);
-
-            }).then(() => {
-                return obj
-            })
-
-
-
+            var obj = doc.data();
+            obj["date"] = doc.data().date.toDate().toDateString();
+            return obj;
         }
     });
     if (docs.length == 0) {

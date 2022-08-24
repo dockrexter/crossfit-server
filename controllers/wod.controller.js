@@ -12,6 +12,7 @@ async function getWod(req, res) {
     }
     const wod = snapshot.data();
 
+
     res.status(200).json({ wod: wod });
 }
 async function setWod(req, res) {
@@ -26,7 +27,7 @@ async function setWod(req, res) {
     const response = await db.collection('WOD')
         .doc(date)
         .set({
-            date: date,
+            Date: date,
             PartA: PartA,
             PartB: PartB,
             TypeA, TypeA,
@@ -36,12 +37,12 @@ async function setWod(req, res) {
     if (!response) {
         res
             .status(404)
-            .json({ error: { code: 'could not add wod' } });
+            .json({ error: { code: 'could not add' } });
         return;
     }
 
     res.status(200).json({
-        date: date,
+        Date: date,
         PartA: PartA,
         PartB: PartB,
         TypeA, TypeA,
