@@ -7,6 +7,7 @@ require('dotenv').config()
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/api/users.router");
 var wodRouter = require("./routes/api/wod.router");
+var timeTableRouter = require("./routes/api/timetable.router");
 const admin = require("firebase-admin");
 const serviceAccount = require("./config/crossfit-bolzano-firebase-adminsdk-m3owr-172ce0ee89.json");
 const firebaseConfig = require('./config/firebase.json');
@@ -21,6 +22,14 @@ firebase.initializeApp(firebaseConfig);
 
 const app = express();
 app.use(cors())
+
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", '*');
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
+    next();
+});
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -39,6 +48,7 @@ app.use("/", indexRouter);
 
 app.use("/api/users", usersRouter);
 app.use("/api/wod", wodRouter);
+app.use("/api/timetable", timeTableRouter);
 
 /**
  * Get port from environment and store in Express.
@@ -61,8 +71,8 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, () => {
-    console.log("backend running at port", port)
+server.listen(port, "0.0.0.0", () => {
+    console.log("backend running at port", port);
 });
 
 

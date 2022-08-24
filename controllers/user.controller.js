@@ -78,6 +78,7 @@ async function login(req, res) {
 
 async function getUser(req, res) {
     const userId = req.body.id;
+    console.log(req);
     if (!userId) {
         res.status(400).json({ error: { code: 'no-user-id' } });
         return;
