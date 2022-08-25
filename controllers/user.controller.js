@@ -11,10 +11,10 @@ const {
 
 async function register(req, res) {
     const { email, password, role } = req.body;
-    if (!secureNote) {
+    if (!role) {
         res
             .status(400)
-            .json({ error: { code: 'no-secure-note' } });
+            .json({ error: { code: 'no-role' } });
         return;
     }
 
