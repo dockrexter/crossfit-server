@@ -39,7 +39,7 @@ async function register(req, res) {
                     Email: credential.user.email,
                     FirstName: "",
                     LastName: "",
-                    Status: false,
+                    Status: true,
                     social: false,
                     uid: credential.user.uid,
                     Plan: {
@@ -107,6 +107,31 @@ async function deleteUser(req, res) {
         .deleteUser(uid)
         .then(() => {
             console.log('Successfully deleted user');
+            try {
+                db
+                    .collection('USERS')
+                    .doc(uid).set({ Status: false }, { merge: true }).then(() => {
+                        res.status(200).send({ message: "user status updated successfully" })
+                    }).catch((error) => {
+                        res
+                            .status(404)
+                            .json({
+                                error: {
+                                    code: error,
+                                    message: 'something went wrong'
+                                }
+                            });
+                    })
+            } catch (error) {
+                res
+                    .status(500)
+                    .json({
+                        error: {
+                            code: error,
+                            message: 'internal server error'
+                        }
+                    });
+            }
             res.status(200).json({ message: 'Successfully deleted user' });
         })
         .catch((error) => {
