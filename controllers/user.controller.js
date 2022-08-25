@@ -30,6 +30,30 @@ async function register(req, res) {
         const token = await adminAuth.createCustomToken(
             credential.user.uid
         );
+        if (role == "user") {
+            await db
+                .collection('USERS').doc(user.uid).set({
+                    Picture: "",
+                    CodiceFiscale: "",
+                    Contact: "",
+                    Email: credential.user.email,
+                    FirstName: "",
+                    LastName: "",
+                    Status: false,
+                    social: false,
+                    uid: credential.user.uid,
+                    Plan: {
+                        Entries: 0,
+                        Price: 0,
+                        TotalEntries: 0,
+                        Type: "",
+                        ValidFrom: "",
+                        ValidThru: "",
+                    },
+                    ValidFrom: "",
+                    ValidThru: "",
+                });
+        }
         res.status(201).json({ token });
     } catch (err) {
         console.log(err);
@@ -75,6 +99,8 @@ async function login(req, res) {
         });
     }
 }
+
+
 async function deleteUser(req, res) {
     const { uid } = req.body;
     getAdminAuth()
@@ -91,6 +117,24 @@ async function deleteUser(req, res) {
         });
 }
 
+async function updateUser(req, res) {
+    const { object } = req.body
+    db
+        .collection('USERS')
+        .doc(userId).set(object, { merge: true }).then(() => {
+            res.status(200).send({ message: "user updated successfully" })
+        }).catch((error) => {
+            res
+                .status(404)
+                .json({
+                    error: {
+                        code: error,
+                        message: 'something went wrong'
+                    }
+                });
+        })
+}
+
 async function getUser(req, res) {
     const userId = req.body.id;
     console.log(req);
@@ -100,7 +144,7 @@ async function getUser(req, res) {
     }
 
     const snapshot = await db
-        .collection('Users')
+        .collection('USERS')
         .doc(userId)
         .get();
     if (!snapshot.exists) {
@@ -117,7 +161,7 @@ async function getUser(req, res) {
 async function getAllUsers(req, res) {
     allUsers = []
     console.log(req.token, "<- I am in the function")
-    const users = db.collection('Users');
+    const users = db.collection('USERS');
     const snapshot = await users.get();
     snapshot.forEach(doc => {
         allUsers.push(doc.data());
@@ -139,6 +183,7 @@ module.exports = {
     login,
     getUser,
     getAllUsers,
-    deleteUser
+    deleteUser,
+    updateUser,
 };
 
