@@ -12,6 +12,7 @@ function dateRange(startDate, endDate, steps = 1) {
 }
 
 async function getTimeTable(req, res) {
+
     var { startDate, endDate } = req.body;
     const dates = dateRange(startDate, endDate);
     var docs = []
@@ -19,19 +20,22 @@ async function getTimeTable(req, res) {
     docs = queey.docs.map((doc) => {
 
         if (dates.indexOf(doc.data().date.toDate().toDateString()) !== -1) {
+
             var obj = doc.data();
+
             obj["date"] = doc.data().date.toDate().toDateString();
+
             return obj;
         }
+
     });
+
     if (docs.length == 0) {
         res
             .status(404)
             .json({ error: { code: 'no classes found' } });
-
         return;
     }
-
     res.status(200).json({ docs: docs });
 }
 

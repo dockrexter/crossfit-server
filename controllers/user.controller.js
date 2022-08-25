@@ -119,20 +119,32 @@ async function deleteUser(req, res) {
 
 async function updateUser(req, res) {
     const { object } = req.body
-    db
-        .collection('USERS')
-        .doc(userId).set(object, { merge: true }).then(() => {
-            res.status(200).send({ message: "user updated successfully" })
-        }).catch((error) => {
-            res
-                .status(404)
-                .json({
-                    error: {
-                        code: error,
-                        message: 'something went wrong'
-                    }
-                });
-        })
+    try {
+        db
+            .collection('USERS')
+            .doc(userId).set(object, { merge: true }).then(() => {
+                res.status(200).send({ message: "user updated successfully" })
+            }).catch((error) => {
+                res
+                    .status(404)
+                    .json({
+                        error: {
+                            code: error,
+                            message: 'something went wrong'
+                        }
+                    });
+            })
+    } catch (error) {
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
 }
 
 async function getUser(req, res) {
