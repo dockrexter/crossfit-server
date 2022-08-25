@@ -118,12 +118,12 @@ async function deleteUser(req, res) {
 }
 
 async function updateUser(req, res) {
-    const { object } = req.body
+    const { object, uid } = req.body
     console.log(object);
     try {
         db
             .collection('USERS')
-            .doc(userId).set(object, { merge: true }).then(() => {
+            .doc(uid).set(object, { merge: true }).then(() => {
                 res.status(200).send({ message: "user updated successfully" })
             }).catch((error) => {
                 res
