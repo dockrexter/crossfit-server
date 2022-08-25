@@ -119,7 +119,7 @@ async function deleteUser(req, res) {
 
 async function updateUser(req, res) {
     const { object, uid } = req.body
-    console.log(object);
+    console.log(object, uid);
     try {
         db
             .collection('USERS')
