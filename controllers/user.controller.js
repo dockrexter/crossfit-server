@@ -75,6 +75,21 @@ async function login(req, res) {
         });
     }
 }
+async function deleteUser(req, res) {
+    const { uid } = req.body;
+    getAdminAuth()
+        .deleteUser(uid)
+        .then(() => {
+            console.log('Successfully deleted user');
+            res.status(200).json({ message: 'Successfully deleted user' });
+        })
+        .catch((error) => {
+            res.status(403);
+            res.json({
+                error: { code: error }
+            });
+        });
+}
 
 async function getUser(req, res) {
     const userId = req.body.id;
@@ -107,7 +122,6 @@ async function getAllUsers(req, res) {
     snapshot.forEach(doc => {
         allUsers.push(doc.data());
     });
-    // console.log(snapshot.data());
 
     if (allUsers.length == 0) {
         res
@@ -124,6 +138,7 @@ module.exports = {
     register,
     login,
     getUser,
-    getAllUsers
+    getAllUsers,
+    deleteUser
 };
 
