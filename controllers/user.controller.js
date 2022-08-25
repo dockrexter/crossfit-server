@@ -32,7 +32,7 @@ async function register(req, res) {
         );
         if (role == "user") {
             await db
-                .collection('USERS').doc(user.uid).set({
+                .collection('USERS').doc(credential.user.uid).set({
                     Picture: "",
                     CodiceFiscale: "",
                     Contact: "",
