@@ -14,8 +14,6 @@ async function firebaseAuth(req, res, next) {
                 .status(401)
                 .send({ error: { code: 'unauthenticated' } });
         }
-        // console.log(req.token, "apple");
-        // next();
     } catch (err) {
         res
             .status(401)
