@@ -6,7 +6,7 @@ const firebaseAuth = require('../../middleware/firebase-auth');
 
 router.post('/getTimeTable', firebaseAuth, timetableController.getTimeTable);
 router.post('/getCompleteTimeTable', firebaseAuth, timetableController.getCompleteTimeTable);
-router.post('/setTimeTable', firebaseAuth, timetableController.setTimeTable);
+router.post('/setTimeTable', timetableController.setTimeTable);
 router.post('/deleteEvent', firebaseAuth, timetableController.deleteEvent);
 
 module.exports = router;

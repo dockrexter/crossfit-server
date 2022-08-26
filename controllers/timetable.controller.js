@@ -39,23 +39,24 @@ async function getTimeTable(req, res) {
 
 async function getCompleteTimeTable(req, res) {
     try {
-        let completeData = {};
+        let completeData = [];
         const { date } = req.body
         const timeTable = db.collection('newTimeTable').doc(date);
         const collections = await timeTable.listCollections();
-        for (collection of collections) {
-            var categoryArray = []
-            const categorySnap = db.collection('newTimeTable').doc(date).collection(collection.id);
+        for (collectio of collections) {
+            // var categoryArray = []
+            const categorySnap = db.collection('newTimeTable').doc(date).collection(collectio.id);
             await categorySnap.get().then((categoryData) => {
                 categoryData.forEach(doc => {
                     var customObj = {
+                        type: collectio.id,
                         id: doc.id,
                         capacity: doc.data().capacity,
                         time: doc.data().time
                     }
-                    categoryArray.push(customObj);
+                    completeData.push(customObj);
                 });
-                completeData[collection.id] = categoryArray;
+                // completeData.push(categoryArray);
             })
         }
         console.log(completeData, "2");
