@@ -56,7 +56,6 @@ async function getCompleteTimeTable(req, res) {
                     }
                     completeData.push(customObj);
                 });
-                // completeData.push(categoryArray);
             })
         }
         console.log(completeData, "2");
@@ -91,7 +90,7 @@ async function setTimeTable(req, res) {
             .doc(date)
             .collection(type)
             .doc(firestoreAutoId())
-            .set({ capacity: capacity, time: time }, { merge: true })
+            .set({ capacity: capacity, time: int(time) }, { merge: true })
             .then((a) => {
                 console.log(a);
                 res.status(200).send({ message: "event added successfully" })
