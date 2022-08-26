@@ -170,7 +170,6 @@ async function updateUser(req, res) {
                 }
             });
     }
-
 }
 
 async function getUser(req, res) {
@@ -211,8 +210,6 @@ async function getAllUsers(req, res) {
             .send({ error: { code: 'user-not-found' } });
         return;
     }
-    // const user = snapshot.data();
-
     res.status(200).send({ data: allUsers });
 }
 
