@@ -90,7 +90,7 @@ async function setTimeTable(req, res) {
             .doc(date)
             .collection(type)
             .doc(firestoreAutoId())
-            .set({ capacity: capacity, time: int(time) }, { merge: true })
+            .set({ capacity: parseInt(capacity), time: time }, { merge: true })
             .then((a) => {
                 console.log(a);
                 res.status(200).send({ message: "event added successfully" })
@@ -138,7 +138,7 @@ async function deleteEvent(req, res) {
                     .json({
                         error: {
                             code: error,
-                            message: 'something went wrong'
+                            message: 'not found'
                         }
                     });
             })
