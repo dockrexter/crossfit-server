@@ -120,8 +120,9 @@ async function setTimeTable(req, res) {
 
 
 async function deleteEvent(req, res) {
-    const { date, id, type } = req.body
+
     try {
+        const { date, id, type } = req.body
         db
             .collection('newTimeTable')
             .doc(date)
