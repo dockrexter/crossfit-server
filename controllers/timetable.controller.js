@@ -196,5 +196,6 @@ module.exports = {
     getTimeTable,
     setTimeTable,
     getCompleteTimeTable,
-    deleteEvent
+    deleteEvent,
+    editEvent
 };
