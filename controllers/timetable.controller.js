@@ -160,6 +160,11 @@ async function deleteEvent(req, res) {
 
     try {
         const { date, id, type } = req.body
+        console.log(
+            date,
+            id,
+            type
+        )
         db
             .collection('newTimeTable')
             .doc(date)
@@ -192,6 +197,7 @@ async function deleteEvent(req, res) {
     }
 
 }
+
 module.exports = {
     getTimeTable,
     setTimeTable,
