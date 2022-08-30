@@ -98,10 +98,18 @@ async function addUser(req, res) {
                 .collection("WaitingList")
                 .doc(uid);
 
+            const WaitingCountRef = db
+                .collection('newTimeTable')
+                .doc(date)
+                .collection(type)
+                .doc(id)
+                .collection("WaitingList")
+
             const usersSnapshot = await t.get(usersRef);
             const waitingListSnapshot = await t.get(WaitingListRef);
             const capacitySnapshot = await t.get(capacity);
             const currentUsersSnapshot = await t.get(currentUsers);
+            const WaitingCountSnapshot = await t.get(WaitingCountRef);
             console.log(capacitySnapshot.data().capacity, currentUsersSnapshot.size);
 
             // if (typeof usersSnapshot.data() == "undefined") {
@@ -126,6 +134,7 @@ async function addUser(req, res) {
             }
             else if (capacitySnapshot.data().capacity <= currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined" && typeof waitingListSnapshot.data() == "undefined") {
                 t.set(WaitingListRef, {
+                    WaitingId: WaitingCountSnapshot.size + 1,
                     FirstName: FirstName,
                     LastName: LastName,
                     Picture: Picture,
