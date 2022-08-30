@@ -104,7 +104,17 @@ async function addUser(req, res) {
             const currentUsersSnapshot = await t.get(currentUsers);
             console.log(capacitySnapshot.data().capacity, currentUsersSnapshot.size);
 
-            if (typeof usersSnapshot.data() == "undefined" && typeof waitingListSnapshot.data() == "undefined") {
+            // if (typeof usersSnapshot.data() == "undefined") {
+            //     t.set(usersRef, {
+            //         FirstName: FirstName,
+            //         LastName: LastName,
+            //         Picture: Picture,
+            //         uid: uid
+            //     })
+            //     message["code"] = "0";
+            //     message["added_to"] = "users list";
+            // }
+            if (capacitySnapshot.data().capacity > currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined") {
                 t.set(usersRef, {
                     FirstName: FirstName,
                     LastName: LastName,
@@ -114,17 +124,7 @@ async function addUser(req, res) {
                 message["code"] = "0";
                 message["added_to"] = "users list";
             }
-            else if (capacitySnapshot.data().capacity > currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined") {
-                t.set(usersRef, {
-                    FirstName: FirstName,
-                    LastName: LastName,
-                    Picture: Picture,
-                    uid: uid
-                })
-                message["code"] = "0";
-                message["added_to"] = "users list";
-            }
-            else if (capacitySnapshot.data().capacity <= currentUsersSnapshot.size && typeof usersSnapshot.data() !== "undefined" && typeof waitingListSnapshot.data() == "undefined") {
+            else if (capacitySnapshot.data().capacity <= currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined" && typeof waitingListSnapshot.data() == "undefined") {
                 t.set(WaitingListRef, {
                     FirstName: FirstName,
                     LastName: LastName,
