@@ -15,6 +15,7 @@ async function getBookings(req, res) {
             .collection(type)
             .doc(id)
             .collection("Users");
+
         const WaitingListRef = db
             .collection('newTimeTable')
             .doc(date)
@@ -34,7 +35,7 @@ async function getBookings(req, res) {
 
         if (users.length == 0 && waitingList.length) {
             res
-                .status(404)
+                .status(400)
                 .send({ error: { code: 'bookings-not-found' } });
             return;
         }
@@ -88,6 +89,7 @@ async function addUser(req, res) {
                 .doc(id)
                 .collection("Users")
                 .doc(uid);
+
             const WaitingListRef = db
                 .collection('newTimeTable')
                 .doc(date)
