@@ -118,6 +118,43 @@ async function setTimeTable(req, res) {
 
 }
 
+async function editEvent(req, res) {
+
+    try {
+        const { date, capacity, time, id, type } = req.body
+        db
+            .collection('newTimeTable')
+            .doc(date)
+            .collection(type)
+            .doc(id)
+            .set({ capacity: parseInt(capacity), time: time }, { merge: true })
+            .then((a) => {
+                console.log(a);
+                res.status(200).send({ message: "event added successfully" })
+            }).catch((error) => {
+                res
+                    .status(404)
+                    .json({
+                        error: {
+                            code: error,
+                            message: 'something went wrong'
+                        }
+                    });
+            })
+    } catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
+}
+
 
 async function deleteEvent(req, res) {
 
