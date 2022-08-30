@@ -24,7 +24,7 @@ async function getBookings(req, res) {
             .collection("WaitingList");
 
         const usersSnapshot = await usersRef.get();
-        const waitingListSnapshot = await WaitingListRef.get();
+        const waitingListSnapshot = await WaitingListRef.orderBy('WaitingId').get();
 
         await usersSnapshot.forEach(doc => {
             users.push(doc.data());
@@ -112,18 +112,8 @@ async function addUser(req, res) {
             const WaitingCountSnapshot = await t.get(WaitingCountRef);
             console.log(capacitySnapshot.data().capacity, currentUsersSnapshot.size);
 
-            // if (typeof usersSnapshot.data() == "undefined") {
-            //     t.set(usersRef, {
-            //         FirstName: FirstName,
-            //         LastName: LastName,
-            //         Picture: Picture,
-            //         uid: uid
-            //     })
-            //     message["code"] = "0";
-            //     message["added_to"] = "users list";
-            // }
             if (capacitySnapshot.data().capacity > currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined") {
-                t.set(usersRef, {
+                await t.set(usersRef, {
                     FirstName: FirstName,
                     LastName: LastName,
                     Picture: Picture,
@@ -133,7 +123,7 @@ async function addUser(req, res) {
                 message["added_to"] = "users list";
             }
             else if (capacitySnapshot.data().capacity <= currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined" && typeof waitingListSnapshot.data() == "undefined") {
-                t.set(WaitingListRef, {
+                await t.set(WaitingListRef, {
                     WaitingId: WaitingCountSnapshot.size + 1,
                     FirstName: FirstName,
                     LastName: LastName,
@@ -167,7 +157,131 @@ async function addUser(req, res) {
 
 }
 
+async function removeFromWaitingList(req, res) {
+
+    try {
+        const { date, id, type, uid } = req.body
+        console.log(
+            date,
+            id,
+            type
+        )
+
+        db
+            .collection('newTimeTable')
+            .doc(date)
+            .collection(type)
+            .doc(id)
+            .collection("WaitingList")
+            .doc(uid)
+            .delete()
+            .then((a) => {
+                console.log(a);
+                res.status(200).send({ message: `user with uid : ${uid} removed from waiting list` })
+            }).catch((error) => {
+                res
+                    .status(404)
+                    .json({
+                        error: {
+                            code: error,
+                            message: 'not found'
+                        }
+                    });
+            })
+    } catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+}
+async function removeUser(req, res) {
+
+    try {
+        var message = "user removed successfully";
+        var users = [];
+        const { date, id, type, uid } = req.body
+        console.log(
+            date,
+            id,
+            type
+        )
+        const resp = await db.runTransaction(async t => {
+
+            const userRef = db
+                .collection('newTimeTable')
+                .doc(date)
+                .collection(type)
+                .doc(id)
+                .collection("Users")
+                .doc(uid)
+
+            const waitingUserRef = db.
+                collection('newTimeTable')
+                .doc(date)
+                .collection(type)
+                .doc(id)
+                .collection("WaitingList").orderBy("WaitingId").limit(1);
+
+            const first_waiting_user = await t.get(waitingUserRef);
+            const delete_response = await t.delete(userRef);
+
+            console.log(delete_response);
+
+            await first_waiting_user.forEach(doc => {
+                users.push(doc.data());
+            });
+
+            if (users.length !== 0) {
+                console.log(users[0]);
+
+                const add_waiting_user_to_user_list_ref = db
+                    .collection('newTimeTable')
+                    .doc(date)
+                    .collection(type)
+                    .doc(id)
+                    .collection("Users")
+                    .doc(users[0].uid)
+
+                const delete_user_from_waiting_list = db
+                    .collection('newTimeTable')
+                    .doc(date)
+                    .collection(type)
+                    .doc(id)
+                    .collection("WaitingList")
+                    .doc(users[0].uid)
+
+                await t.set(add_waiting_user_to_user_list_ref, users[0])
+                await t.delete(delete_user_from_waiting_list);
+                message = "user removed and 1 user from waiting is added to users list"
+            }
+        });
+        console.log('Transaction success', resp);
+        res
+            .status(201)
+            .send({ message: message });
+        return;
+    } catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+}
+
 module.exports = {
     getBookings,
-    addUser
+    addUser,
+    removeFromWaitingList,
+    removeUser
 };

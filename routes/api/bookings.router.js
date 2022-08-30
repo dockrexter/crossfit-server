@@ -5,9 +5,9 @@ var bookingsController = require("../../controllers/bookings.controller");
 const firebaseAuth = require('../../middleware/firebase-auth');
 
 router.post('/getBookings', firebaseAuth, bookingsController.getBookings);
-router.post('/addUser', bookingsController.addUser);
-// router.post('/setTimeTable', firebaseAuth, timetableController.setTimeTable);
-// router.post('/deleteEvent', firebaseAuth, timetableController.deleteEvent);
-// router.post('/editEvent', firebaseAuth, timetableController.editEvent);
+router.post('/addUser', firebaseAuth, bookingsController.addUser);
+router.post('/removeUser', firebaseAuth, bookingsController.removeUser);
+router.post('/removeFromWaitingList', firebaseAuth, bookingsController.removeFromWaitingList);
+
 
 module.exports = router;
