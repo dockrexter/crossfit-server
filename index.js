@@ -9,6 +9,7 @@ var usersRouter = require("./routes/api/users.router");
 var wodRouter = require("./routes/api/wod.router");
 var timeTableRouter = require("./routes/api/timetable.router");
 var bookingsRouter = require("./routes/api/bookings.router");
+var membershipsRouter = require("./routes/api/memberships.router");
 
 const admin = require("firebase-admin");
 const serviceAccount = require("./config/crossfit-bolzano-firebase-adminsdk-m3owr-172ce0ee89.json");
@@ -52,6 +53,8 @@ app.use("/api/users", usersRouter);
 app.use("/api/wod", wodRouter);
 app.use("/api/timetable", timeTableRouter);
 app.use("/api/bookings", bookingsRouter);
+app.use("/api/memberships", membershipsRouter);
+
 
 
 /**
