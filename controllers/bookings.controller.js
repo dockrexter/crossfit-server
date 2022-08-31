@@ -1,3 +1,4 @@
+
 async function getBookings(req, res) {
 
     try {
