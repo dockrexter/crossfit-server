@@ -9,7 +9,7 @@ async function addMembership(req, res) {
             .doc(categoryName)
             .collection("plans")
             .doc(firestoreAutoId())
-            .set({ price: parseInt(price), entries: parseInt(entries), planName: planName }, { merge: true })
+            .set({ price: parseInt(price), entries: parseFloat(entries), planName: planName }, { merge: true })
             .then((a) => {
                 console.log(a);
                 res.status(200).send({ message: "membership added successfully" })
