@@ -10,6 +10,7 @@ async function getPr(req, res) {
 
         await docs.forEach(doc => {
             var planobj = doc.data()
+            planobj["id"] = doc.id
             prs.push(planobj)
         });
         if (prs.length == 0) {
