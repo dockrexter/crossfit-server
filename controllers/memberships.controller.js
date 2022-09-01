@@ -9,7 +9,7 @@ async function addMembership(req, res) {
         var obj = {}
         obj[firestoreAutoId()] = {
             price: parseInt(price),
-            entries: parseFloat(entries),
+            entries: entries,
             planName: planName
         }
         db
