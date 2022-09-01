@@ -33,6 +33,29 @@ async function editSettings(req, res) {
     }
 
 }
+async function getSettings(req, res) {
+
+    try {
+
+        const settingsRef = db.collection('settings').doc("settings");
+        let data = await settingsRef.get();
+
+        res.status(200).send({ data: data.data() })
+
+    } catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
+}
 module.exports = {
-    editSettings
+    editSettings,
+    getSettings
 }
