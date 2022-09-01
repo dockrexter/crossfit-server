@@ -42,7 +42,7 @@ async function addMembership(req, res) {
     }
 
 }
-async function deleteMembership(req, res) {
+async function deleteMembershipCat(req, res) {
 
     try {
         const { categoryName, id } = req.body
@@ -56,6 +56,41 @@ async function deleteMembership(req, res) {
         }).then((a) => {
             console.log(a);
             res.status(200).send({ message: "membership deleted successfully" })
+        }).catch((error) => {
+            res
+                .status(404)
+                .json({
+                    error: {
+                        code: error,
+                        message: 'not found'
+                    }
+                });
+        })
+    } catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
+}
+async function deleteMembership(req, res) {
+
+    try {
+        const { categoryName } = req.body
+        console.log(
+            categoryName,
+            id
+        )
+        const memberShipRef = db.collection('newMemberships').doc(categoryName);
+        let removeCurrentUserId = memberShipRef.delete().then((a) => {
+            console.log(a);
+            res.status(200).send({ message: "membership category deleted successfully" })
         }).catch((error) => {
             res
                 .status(404)
@@ -155,5 +190,7 @@ module.exports = {
     addMembership,
     deleteMembership,
     getMemberships,
-    editMembership
+    editMembership,
+    deleteMembershipCat
+
 };

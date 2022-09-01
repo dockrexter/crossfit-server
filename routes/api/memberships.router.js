@@ -8,5 +8,6 @@ router.post('/addMembership', firebaseAuth, membershipsController.addMembership)
 router.post('/deleteMembership', firebaseAuth, membershipsController.deleteMembership);
 router.post('/editMembership', firebaseAuth, membershipsController.editMembership);
 router.get('/getMemberships', firebaseAuth, membershipsController.getMemberships);
+router.post('/deleteMembershipCategory', firebaseAuth, membershipsController.deleteMembershipCat);
 
 module.exports = router;
