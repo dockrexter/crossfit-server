@@ -50,6 +50,14 @@ async function register(req, res) {
                         ValidFrom: "",
                         ValidThru: "",
                     },
+                    newPlan: {
+                        Entries: 0,
+                        Price: 0,
+                        TotalEntries: 0,
+                        Type: "",
+                        ValidFrom: "",
+                        ValidThru: "",
+                    },
                     ValidFrom: "",
                     ValidThru: "",
                 });
