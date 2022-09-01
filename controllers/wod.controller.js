@@ -15,6 +15,27 @@ async function getWod(req, res) {
 
     res.status(200).json({ wod: wod });
 }
+async function deleteWod(req, res) {
+    try {
+        var date = req.body.date;
+        db.collection('WOD')
+            .doc(date)
+            .delete().then(() => {
+                res.status(200).json({ message: "wod deleted successfully" });
+            }).catch(() => {
+                res
+                    .status(404)
+                    .json({ error: { code: 'wod-not found' } });
+            })
+
+    }
+    catch (error) {
+        res
+            .status(500)
+            .json({ error: { code: 'internal server error' } });
+    }
+
+}
 async function setWod(req, res) {
     var {
         date,
@@ -51,5 +72,6 @@ async function setWod(req, res) {
 }
 module.exports = {
     getWod,
-    setWod
+    setWod,
+    deleteWod
 };
