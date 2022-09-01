@@ -117,10 +117,7 @@ async function deleteMembershipCat(req, res) {
 
     try {
         const { categoryName } = req.body
-        console.log(
-            categoryName,
-            id
-        )
+
         const memberShipRef = db.collection('newMemberships').doc(categoryName);
         let removeCurrentUserId = memberShipRef.delete().then((a) => {
             console.log(a);
