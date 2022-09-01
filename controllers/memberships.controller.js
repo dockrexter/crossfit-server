@@ -42,6 +42,40 @@ async function addMembership(req, res) {
     }
 
 }
+async function addMembershipCategory(req, res) {
+
+    try {
+        const { categoryName } = req.body
+        db
+            .collection('newMemberships')
+            .doc(categoryName)
+            .set({ category: categoryName }, { merge: true })
+            .then((a) => {
+                console.log(a);
+                res.status(200).send({ message: "membership added successfully" })
+            }).catch((error) => {
+                res
+                    .status(404)
+                    .json({
+                        error: {
+                            code: error,
+                            message: 'something went wrong'
+                        }
+                    });
+            })
+    } catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
+}
 async function deleteMembershipCat(req, res) {
 
     try {
@@ -159,7 +193,7 @@ async function getMemberships(req, res) {
 
         await docs.forEach(doc => {
             planobj = doc.data()
-            planobj["category"] = doc.id
+            // planobj["category"] = doc.id
             plans.push(planobj)
         });
         if (plans.length == 0) {
@@ -191,6 +225,7 @@ module.exports = {
     deleteMembership,
     getMemberships,
     editMembership,
-    deleteMembershipCat
+    deleteMembershipCat,
+    addMembershipCategory
 
 };
