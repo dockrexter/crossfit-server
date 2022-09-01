@@ -76,7 +76,7 @@ async function addMembershipCategory(req, res) {
     }
 
 }
-async function deleteMembershipCat(req, res) {
+async function deleteMembership(req, res) {
 
     try {
         const { categoryName, id } = req.body
@@ -113,7 +113,7 @@ async function deleteMembershipCat(req, res) {
     }
 
 }
-async function deleteMembership(req, res) {
+async function deleteMembershipCat(req, res) {
 
     try {
         const { categoryName } = req.body
