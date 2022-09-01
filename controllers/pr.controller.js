@@ -129,6 +129,34 @@ async function deletePr(req, res) {
     }
 
 }
+async function deletePrCategory(req, res) {
+    try {
+        const { categoryId } = req.body
+        db
+            .collection('PRList')
+            .doc(categoryId)
+            .delete().then(() => {
+                res.status(200).send({ message: "PR Cateegory removed successfully" });
+            })
+            .catch((err) => {
+                res.status(401).send({ message: err });
+            })
+
+
+    }
+    catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
+}
 async function editPr(req, res) {
     try {
         const { categoryId, name, newName } = req.body
@@ -199,5 +227,6 @@ module.exports = {
     addPr,
     deletePr,
     editPr,
-    editPrCategory
+    editPrCategory,
+    deletePrCategory
 }

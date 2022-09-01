@@ -5,6 +5,7 @@ var prController = require("../../controllers/pr.controller");
 const firebaseAuth = require('../../middleware/firebase-auth');
 
 router.post('/addPrCategory', firebaseAuth, prController.addPrCategory);
+router.post('/deletePrCategory', firebaseAuth, prController.deletePrCategory);
 router.post('/editPrCategory', firebaseAuth, prController.editPrCategory);
 router.get("/getPr", firebaseAuth, prController.getPr);
 router.post("/addPr", firebaseAuth, prController.addPr);
