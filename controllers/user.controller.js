@@ -140,7 +140,7 @@ async function deleteUser(req, res) {
                         }
                     });
             }
-            res.status(200).json({ message: 'Successfully deleted user' });
+            // res.status(200).json({ message: 'Successfully deleted user' });
         })
         .catch((error) => {
             res.status(403);
