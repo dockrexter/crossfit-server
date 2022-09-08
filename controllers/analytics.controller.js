@@ -1,7 +1,7 @@
 
 const moment = require("moment");
 
-async function getBarChat(req, res) {
+async function getAnalytics(req, res) {
 
     try {
         onlyPlans = []
@@ -122,5 +122,5 @@ async function getBarChat(req, res) {
     }
 }
 module.exports = {
-    getBarChat,
+    getAnalytics,
 };
