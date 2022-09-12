@@ -72,7 +72,6 @@ async function getAnalytics(req, res) {
                     })
                 }
             }
-
             plans.push({
 
                 Plan: doc.data()["Plan"],
