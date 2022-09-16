@@ -1,13 +1,155 @@
 const {
     getAuth: getAdminAuth,
 } = require('firebase-admin/auth');
-
+const { firestoreAutoId } = require("../utils/idGenerator");
 const {
     getAuth: getClientAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
 } = require('firebase/auth');
+const moment = require("moment");
+const {
+    FieldValue
+} = require('firebase-admin/firestore');
+async function deleteUserPlan(req, res){
+    const {uid, planId} = req.body;
+    try {
+        const planRef = await db.collection('userPlans').doc(uid);
+        const DeletePlan = await planRef.update({
+            [planId]:FieldValue.delete()
+        }
+        );
+        res.status(200).json({
+            message: "Delete SuccessFully",
+            })
+            console.log("Delete=>", DeletePlan);
+        
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+            })
+    }
 
+}
+
+async function editEntries(req, res){
+    const {uid, planId, entries} = req.body;
+    try {
+        var obj={
+            [`${planId}.entries`]:parseInt(entries)
+        };
+        console.log("Edit Body=>", req.body);
+        const planRef = await db.collection('userPlans').doc(uid);
+        console.log("Check Object",obj);
+        const updateEntries = await planRef.update(obj);
+        console.log(updateEntries);
+         res.status(200).json({
+            message: "Update SuccessFull",
+             data: updateEntries
+            })
+        
+    } catch (error) {
+         res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+            })
+    }
+}
+
+
+async function getUserPlans(req, res) {
+    const {uid} = req.body;
+    try {
+    const plansCheck = await db.collection('userPlans').doc(uid);
+    const userPlansCheck = await plansCheck.get();
+    const userPlans = userPlansCheck.data();
+    return res.status(200).json({
+                        message: "Retrival Successfull",
+                         data: userPlans
+                        })
+} catch (error) {
+        res.status(500).json({
+            error: error,
+            message: "Internal Server Error"
+        })
+    }
+
+
+    
+}
+
+async function addPlan(req, res){
+    try {    
+    var obj = {}
+    const { uid, price, entries, totalentries, type, validFrom, duration } = req.body;
+    const plansCheck = await db.collection('userPlans').doc(uid);
+    const userPlansCheck = await plansCheck.get();
+    const planData = await userPlansCheck.data();// count to create ID for user
+    console.log("PLAN DATA=>",planData)
+    if(planData?Object.keys(planData).length:false){
+        var count = Object.keys(planData);
+        var validThrucheck=[];
+
+        count.forEach(doc => {
+            validThrucheck.push({validDate: userPlansCheck.data()[doc]["validThru"], Entries:userPlansCheck.data()[doc]["entries"] });
+        })
+        console.log("validThru ARRAY TEST=>",validThrucheck)
+        let maxValid = validThrucheck.reduce((max, validThrucheck) => max.validDate > validThrucheck.validDate ? max : validThrucheck);
+        console.log("MAX VALID=>",maxValid);
+        const entriesDone = totalentries - entries;
+        if(maxValid.validDate > validFrom && entriesDone >= 0){
+        obj[firestoreAutoId()] = {
+            id: count.length + 1,
+            price: parseInt(price),
+            totalentries: totalentries,
+            entries: parseFloat(entries),
+            type: type,
+            validFrom: moment(maxValid.validDate, "YYYY-MM-DD").add(1, 'days').format('YYYY-MM-DD'),
+            validThru: moment(maxValid.validDate, "YYYY-MM-DD").add(duration, 'days').format("YYYY-MM-DD")
+        }
+        const setPlan = await plansCheck.set(obj,{merge: true});
+            return res.status(200).send({message:"Plan Added Successfully", setPlan});
+    
+    }else{
+        obj[firestoreAutoId()] = {
+            id: count.length + 1,
+            price: parseInt(price),
+            totalentries: totalentries,
+            entries: parseFloat(entries),
+            type: type,
+            validFrom: validFrom,
+            validThru: moment(validFrom, "YYYY-MM-DD").add(duration, 'days').format("YYYY-MM-DD"),
+        }
+        plansCheck.set(obj,{merge: true}).then((a)=>{
+            res.status(200).send({message:"Plan Added Successfully", a}) });
+
+        }
+    }else{
+        obj[firestoreAutoId()] = {
+            id: 1,
+            price: parseInt(price),
+            totalentries: totalentries,
+            entries: entries,
+            type: type,
+            validFrom: validFrom,
+            validThru: moment(validFrom, "YYYY-MM-DD").add(duration, 'days').format("YYYY-MM-DD"),
+        }
+        plansCheck.set(obj,{merge: true}).then((a)=>{
+            res.status(200).send({message:"Plan Added Successfully", a})
+        });}
+        } catch (error) {
+            console.log(error);
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+        }
+}
 
 async function register(req, res) {
     const { email, password, role } = req.body;
@@ -42,22 +184,22 @@ async function register(req, res) {
                     Status: true,
                     social: false,
                     uid: credential.user.uid,
-                    Plan: {
-                        Entries: 0,
-                        Price: 0,
-                        TotalEntries: 0,
-                        Type: "",
-                        ValidFrom: "",
-                        ValidThru: "",
-                    },
-                    newPlan: {
-                        Entries: 0,
-                        Price: 0,
-                        TotalEntries: 0,
-                        Type: "",
-                        ValidFrom: "",
-                        ValidThru: "",
-                    },
+                    // Plan: {
+                    //     Entries: 0,
+                    //     Price: 0,
+                    //     TotalEntries: 0,
+                    //     Type: "",
+                    //     ValidFrom: "",
+                    //     ValidThru: "",
+                    // },
+                    // newPlan: {
+                    //     Entries: 0,
+                    //     Price: 0,
+                    //     TotalEntries: 0,
+                    //     Type: "",
+                    //     ValidFrom: "",
+                    //     ValidThru: "",
+                    // },
                     ValidFrom: "",
                     ValidThru: "",
                 });
@@ -228,5 +370,9 @@ module.exports = {
     getAllUsers,
     deleteUser,
     updateUser,
+    addPlan,
+    getUserPlans,
+    editEntries,
+    deleteUserPlan
 };
 

@@ -5,7 +5,7 @@ async function getAnalytics(req, res) {
 
     try {
         onlyPlans = []
-        plans = []
+        plansAll = []
         expiredUsers = []
         validUsers = []
         usersExpiringIn30Days = []
@@ -72,7 +72,7 @@ async function getAnalytics(req, res) {
                     })
                 }
             }
-            plans.push({
+            plansAll.push({
 
                 Plan: doc.data()["Plan"],
                 FirstName: doc.data()["FirstName"],
@@ -81,7 +81,7 @@ async function getAnalytics(req, res) {
             });
             onlyPlans.push(doc.data()["Plan"])
         });
-        if (plans.length == 0) {
+        if (plansAll.length == 0) {
             res
                 .status(404)
                 .send({ error: { code: 'data-not-found' } });
@@ -96,9 +96,8 @@ async function getAnalytics(req, res) {
             }
         }
         let usersInPlans = Object.values(tempResult)
-
         res.status(200).send({
-            allUsers: plans,
+            allUsers: plansAll,
             usersWithExpiredPlans: expiredUsers,
             usersWithValidPlans: validUsers,
             usersInPlans: usersInPlans,

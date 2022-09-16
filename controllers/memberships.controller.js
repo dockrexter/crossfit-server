@@ -5,12 +5,13 @@ const {
 async function addMembership(req, res) {
 
     try {
-        const { categoryName, planName, price, entries } = req.body
+        const { categoryName, planName, price, entries, days } = req.body
         var obj = {}
         obj[firestoreAutoId()] = {
-            price: parseInt(price),
-            entries: entries,
-            planName: planName
+            price: parseFloat(price),
+            entries: parseInt(entries),
+            planName: planName,
+            days: parseInt(days)
         }
         db
             .collection('newMemberships')
@@ -148,12 +149,13 @@ async function deleteMembershipCat(req, res) {
 async function editMembership(req, res) {
 
     try {
-        const { categoryName, id, planName, price, entries } = req.body
+        const { categoryName, id, planName, price, entries, days } = req.body
         var obj = {}
         obj[id] = {
-            price: parseInt(price),
-            entries: parseFloat(entries),
-            planName: planName
+            price: parseFloat(price),
+            entries: parseInt(entries),
+            planName: planName,
+            days: parseInt(days)
         }
         const memberShipRef = db.collection('newMemberships').doc(categoryName);
         let removeCurrentUserId = memberShipRef.update(obj).then((a) => {
@@ -193,6 +195,7 @@ async function getMemberships(req, res) {
             // planobj["category"] = doc.id
             plans.push(planobj)
         });
+        console.log("memberShip Data=>", plans);
         if (plans.length == 0) {
             res
                 .status(404)
