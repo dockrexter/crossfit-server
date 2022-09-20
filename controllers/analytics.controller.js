@@ -1,8 +1,7 @@
-
 const moment = require("moment");
 
-async function getAnalytics(req, res) {
 
+async function getAnalytics(req, res){
     try {
         onlyPlans = []
         plansAll = []
@@ -11,104 +10,69 @@ async function getAnalytics(req, res) {
         usersExpiringIn30Days = []
         usersExpiringIn7Days = []
         usersExpiringIn15Days = []
-
-        const usersRef = db.collection('USERS');
-        const docs = await usersRef.get();
-
-        await docs.forEach(doc => {
-            if (moment(doc.data()["Plan"]["ValidThru"]) < Date.now() || parseInt(doc.data()["Plan"]["TotalEntries"]) <= parseInt(doc.data()["Plan"]["Entries"])) {
-
-                expiredUsers.push({
-
-                    Plan: doc.data()["Plan"],
-                    FirstName: doc.data()["FirstName"],
-                    LastName: doc.data()["LastName"],
-                    uid: doc.data()["uid"],
-                })
-            }
-            else {
-                validUsers.push({
-
-                    Plan: doc.data()["Plan"],
-                    FirstName: doc.data()["FirstName"],
-                    LastName: doc.data()["LastName"],
-                    uid: doc.data()["uid"],
-                })
-
-                var date7days = new Date();
-                date7days.setDate(date7days.getDate() + 7);
-
-                var date30days = new Date();
-                date30days.setDate(date30days.getDate() + 30);
-
-                var date15days = new Date();
-                date15days.setDate(date15days.getDate() + 15);
-
-                if (moment(doc.data()["Plan"]["ValidThru"]).diff(date7days, "days") <= 0) {
-                    usersExpiringIn7Days.push({
-
-                        Plan: doc.data()["Plan"],
-                        FirstName: doc.data()["FirstName"],
-                        LastName: doc.data()["LastName"],
-                        uid: doc.data()["uid"],
-                    })
-                }
-                else if (moment(doc.data()["Plan"]["ValidThru"]).diff(date15days, "days") <= 0) {
-                    usersExpiringIn15Days.push({
-
-                        Plan: doc.data()["Plan"],
-                        FirstName: doc.data()["FirstName"],
-                        LastName: doc.data()["LastName"],
-                        uid: doc.data()["uid"],
-                    })
-                }
-                else if (moment(doc.data()["Plan"]["ValidThru"]).diff(date30days, "days") <= 0) {
-                    usersExpiringIn30Days.push({
-
-                        Plan: doc.data()["Plan"],
-                        FirstName: doc.data()["FirstName"],
-                        LastName: doc.data()["LastName"],
-                        uid: doc.data()["uid"],
-                    })
-                }
-            }
-            plansAll.push({
-
-                Plan: doc.data()["Plan"],
-                FirstName: doc.data()["FirstName"],
-                LastName: doc.data()["LastName"],
-                uid: doc.data()["uid"],
-            });
-            onlyPlans.push(doc.data()["Plan"])
+        totalUsers = []
+        const users = db.collection('Users');
+        const snapshot = await users.get();
+        snapshot.forEach(doc => {
+            totalUsers.push(doc.data());
         });
-        if (plansAll.length == 0) {
+        if(totalUsers.length === 0){
             res
                 .status(404)
                 .send({ error: { code: 'data-not-found' } });
             return;
         }
-        var tempResult = {}
-        for (let { Type } of onlyPlans) {
-            console.log(Type);
-            tempResult[Type] = {
-                PlanName: Type,
-                count: tempResult[Type] ? tempResult[Type].count + 1 : 1
+        const plansCheck = await db.collection('userPlans').get();
+        let userCount = 0;
+       
+            await plansCheck.forEach((doc) => {
+                    userCount = 0;
+                    Object.keys(doc.data()).map(data =>{
+                        if(moment(doc.data()[data]['validFrom']) < moment(new Date()) && moment(doc.data()[data]['validThru']) > moment(new Date()) && userCount === 0){ 
+                            plansAll.push(doc.data()[data]);
+                            validUsers.push(doc.data()[data]);
+                            userCount=1;
+                        }else if(moment(doc.data()[data]['validFrom']) < moment(new Date()) && moment(doc.data()[data]['validThru']) < moment(new Date()) && userCount === 0){
+                            plansAll.push(doc.data()[data]);
+                            expiredUsers.push(doc.data()[data]);
+                            userCount=1;
+                        };
+                        if(moment(doc.data()[data]["validThru"]).diff(new Date(), "days") <= 7 && moment(doc.data()[data]["validThru"]).diff(new Date(), "days") > 0){
+                            usersExpiringIn7Days.push(doc.data()[data]);
+                        }else if (moment(doc.data()[data]["validThru"]).diff(new Date(), "days") <= 15 && moment(doc.data()[data]["validThru"]).diff(new Date(), "days") > 0){
+                            usersExpiringIn15Days.push(doc.data()[data]);
+                        }else if(moment(doc.data()[data]["validThru"]).diff(new Date(), "days") <= 30 && moment(doc.data()[data]["validThru"]).diff(new Date(), "days") > 0){
+                            usersExpiringIn30Days.push(doc.data()[data]);    
+                        }
+                        
+                    });
+            })
+            if(plansAll.length == 0){
+                res
+                    .status(404)
+                    .send({ error: { code: 'data-not-found' } });
+                return;
             }
-        }
-        let usersInPlans = Object.values(tempResult)
-        res.status(200).send({
-            allUsers: plansAll,
-            usersWithExpiredPlans: expiredUsers,
-            usersWithValidPlans: validUsers,
-            usersInPlans: usersInPlans,
-            usersExpiringIn15Days: usersExpiringIn15Days,
-            usersExpiringIn7Days: usersExpiringIn7Days,
-            usersExpiringIn30Days: usersExpiringIn30Days
-        });
-
-
+            var tempResult = {}
+            for (let { type } of plansAll) {
+                console.log(type);
+                tempResult[type] = {
+                    PlanName: type,
+                    count: tempResult[type] ? tempResult[type].count + 1 : 1
+                }
+            }
+            let usersInPlans = Object.values(tempResult);
+            res.status(200).send({
+                    totalUsers: totalUsers,
+                    allUsers: plansAll,
+                    usersWithExpiredPlans: expiredUsers,
+                    usersWithValidPlans: validUsers,
+                    usersInPlans: usersInPlans,
+                    usersExpiringIn15Days: usersExpiringIn15Days,
+                    usersExpiringIn7Days: usersExpiringIn7Days,
+                    usersExpiringIn30Days: usersExpiringIn30Days
+                }); 
     } catch (error) {
-        console.log(error);
         res
             .status(500)
             .json({

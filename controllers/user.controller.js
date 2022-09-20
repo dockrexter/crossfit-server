@@ -82,28 +82,29 @@ async function getUserPlans(req, res) {
 async function addPlan(req, res){
     try {    
     var obj = {}
-    const { uid, price, entries, totalentries, type, validFrom, duration } = req.body;
+    const { uid, price, totalentries, type, validFrom, duration, name } = req.body;
     const plansCheck = await db.collection('userPlans').doc(uid);
     const userPlansCheck = await plansCheck.get();
     const planData = await userPlansCheck.data();// count to create ID for user
-    console.log("PLAN DATA=>",planData)
     if(planData?Object.keys(planData).length:false){
         var count = Object.keys(planData);
         var validThrucheck=[];
 
         count.forEach(doc => {
-            validThrucheck.push({validDate: userPlansCheck.data()[doc]["validThru"], Entries:userPlansCheck.data()[doc]["entries"] });
+            validThrucheck.push({validDate: userPlansCheck.data()[doc]["validThru"], Entries:userPlansCheck.data()[doc]["entries"], TotalEntries: userPlansCheck.data()[doc]["totalentries"]});
         })
         console.log("validThru ARRAY TEST=>",validThrucheck)
         let maxValid = validThrucheck.reduce((max, validThrucheck) => max.validDate > validThrucheck.validDate ? max : validThrucheck);
-        console.log("MAX VALID=>",maxValid);
-        const entriesDone = totalentries - entries;
+        //console.log("MAX VALID=>",maxValid);
+        const entriesDone = maxValid.TotalEntries - maxValid.Entries;
         if(maxValid.validDate > validFrom && entriesDone >= 0){
         obj[firestoreAutoId()] = {
             id: count.length + 1,
+            name: name,
+            uid: uid, //foreign key
             price: parseInt(price),
-            totalentries: totalentries,
-            entries: parseFloat(entries),
+            totalentries: parseInt(totalentries),
+            entries: 0,
             type: type,
             validFrom: moment(maxValid.validDate, "YYYY-MM-DD").add(1, 'days').format('YYYY-MM-DD'),
             validThru: moment(maxValid.validDate, "YYYY-MM-DD").add(duration, 'days').format("YYYY-MM-DD")
@@ -114,9 +115,11 @@ async function addPlan(req, res){
     }else{
         obj[firestoreAutoId()] = {
             id: count.length + 1,
+            name: name,
+            uid: uid, //foreign key
             price: parseInt(price),
-            totalentries: totalentries,
-            entries: parseFloat(entries),
+            totalentries: parseInt(totalentries),
+            entries: 0,
             type: type,
             validFrom: validFrom,
             validThru: moment(validFrom, "YYYY-MM-DD").add(duration, 'days').format("YYYY-MM-DD"),
@@ -128,9 +131,11 @@ async function addPlan(req, res){
     }else{
         obj[firestoreAutoId()] = {
             id: 1,
+            name: name,
+            uid: uid, // foreign Key
             price: parseInt(price),
-            totalentries: totalentries,
-            entries: entries,
+            totalentries: parseInt(totalentries),
+            entries: 0,
             type: type,
             validFrom: validFrom,
             validThru: moment(validFrom, "YYYY-MM-DD").add(duration, 'days').format("YYYY-MM-DD"),
@@ -184,22 +189,6 @@ async function register(req, res) {
                     Status: true,
                     social: false,
                     uid: credential.user.uid,
-                    // Plan: {
-                    //     Entries: 0,
-                    //     Price: 0,
-                    //     TotalEntries: 0,
-                    //     Type: "",
-                    //     ValidFrom: "",
-                    //     ValidThru: "",
-                    // },
-                    // newPlan: {
-                    //     Entries: 0,
-                    //     Price: 0,
-                    //     TotalEntries: 0,
-                    //     Type: "",
-                    //     ValidFrom: "",
-                    //     ValidThru: "",
-                    // },
                     ValidFrom: "",
                     ValidThru: "",
                 });
@@ -249,7 +238,23 @@ async function login(req, res) {
         });
     }
 }
+async function getAllUsersOld(req, res) {
+    allUsers = []
+    console.log(req.token, "<- I am in the function")
+    const users = db.collection('Users');
+    const snapshot = await users.get();
+    snapshot.forEach(doc => {
+        allUsers.push(doc.data());
+    });
 
+    if (allUsers.length == 0) {
+        res
+            .status(404)
+            .send({ error: { code: 'user-not-found' } });
+        return;
+    }
+    res.status(200).send({ data: allUsers });
+}
 
 async function deleteUser(req, res) {
     const { uid } = req.body;
@@ -331,7 +336,7 @@ async function getUser(req, res) {
     }
 
     const snapshot = await db
-        .collection('USERS')
+        .collection('Users')
         .doc(userId)
         .get();
     if (!snapshot.exists) {
@@ -347,8 +352,7 @@ async function getUser(req, res) {
 
 async function getAllUsers(req, res) {
     allUsers = []
-    console.log(req.token, "<- I am in the function")
-    const users = db.collection('USERS');
+    const users = db.collection('Users');
     const snapshot = await users.get();
     snapshot.forEach(doc => {
         allUsers.push(doc.data());
@@ -373,6 +377,7 @@ module.exports = {
     addPlan,
     getUserPlans,
     editEntries,
-    deleteUserPlan
+    deleteUserPlan,
+    getAllUsersOld,
 };
 

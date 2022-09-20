@@ -1,4 +1,4 @@
-
+const moment = require('moment');
 async function getBookings(req, res) {
 
     try {
@@ -106,11 +106,35 @@ async function addUser(req, res) {
                 .doc(id)
                 .collection("WaitingList")
 
+            const userPlans = db
+                .collection('userPlans')
+                .doc(uid)
+
             const usersSnapshot = await t.get(usersRef);
             const waitingListSnapshot = await t.get(WaitingListRef);
             const capacitySnapshot = await t.get(capacity);
             const currentUsersSnapshot = await t.get(currentUsers);
             const WaitingCountSnapshot = await t.get(WaitingCountRef);
+            const planDataUser = await t.get(userPlans);
+            const planData =  planDataUser.data();
+            if(planData?Object.keys(planData).length:false){
+                var count = Object.keys(planData);
+                count.forEach(doc=>{
+                    if(moment(planDataUser.data()[doc]['validFrom']) < moment(new Date) && moment(planDataUser.data()[doc]['validThru']) > moment(new Date)){
+                        const remaingEntries = planDataUser.data()[doc]['totalentries'] -  planDataUser.data()[doc]['entries'];
+                        if(remaingEntries <= 0){
+                            // message["code"] = "2";
+                            // message["Falied"] = "User Entries Are Full";
+                            throw "User Entries Are Full"
+                        }
+                    }
+                })
+            }else{
+                res.status(401).json({
+                    message: "User Don't have plans"
+                })
+                return;
+            }
             console.log(capacitySnapshot.data().capacity, currentUsersSnapshot.size);
 
             if (capacitySnapshot.data().capacity > currentUsersSnapshot.size && typeof usersSnapshot.data() == "undefined") {
@@ -146,6 +170,15 @@ async function addUser(req, res) {
 
     } catch (error) {
         console.log(error);
+    if(error == "User Entries Are Full"){
+        res.json({
+            error: {
+                code: 404,
+                message: 'User Entries Are Full'
+            }
+        }).status(405);
+        return;
+    }else{
         res
             .status(500)
             .json({
@@ -154,7 +187,7 @@ async function addUser(req, res) {
                     message: 'internal server error'
                 }
             });
-    }
+    }}
 
 }
 
