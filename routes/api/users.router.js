@@ -7,6 +7,7 @@ const firebaseAuth = require('../../middleware/firebase-auth');
 
 router.post('/login', validateEmailAndPassword, userController.login);
 router.post('/deleteUser', firebaseAuth, userController.deleteUser);
+router.post('/activeUser', firebaseAuth, userController.activeUser);
 router.post('/updateUser', firebaseAuth, userController.updateUser);
 router.post('/register', validateEmailAndPassword, firebaseAuth, userController.register);
 router.post('/getUser', firebaseAuth, userController.getUser);
@@ -16,6 +17,7 @@ router.post('/addUserPlan', firebaseAuth, userController.addPlan);
 router.post('/getUserPlan', firebaseAuth, userController.getUserPlans);
 router.post('/editUserPlanEntries', firebaseAuth, userController.editEntries);
 router.post('/deleteUserPlan', firebaseAuth, userController.deleteUserPlan);
+router.post('/activeUserPlan', firebaseAuth, userController.activePlan);
 
 
 module.exports = router;

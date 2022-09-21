@@ -33,6 +33,30 @@ async function deleteUserPlan(req, res){
 
 }
 
+async function activePlan(req, res){
+    const {uid, planId, duration } = req.body;
+    try {
+        var obj={
+            [`${planId}.validFrom`]: moment(new Date()).format('YYYY-MM-DD'),
+            [`${planId}.validThru`]: moment(new Date()).add(duration, 'days').format('YYYY-MM-DD') 
+            
+        };
+        const planRef = await db.collection('userPlans').doc(uid);
+        const updateEntries = await planRef.update(obj);
+         res.status(200).json({
+            message: "Update SuccessFull",
+             data: updateEntries
+            })
+        
+    } catch (error) {
+        console.log(error);
+         res.status(500).json({
+            message: "Internal Server Error",
+            error: error
+            })
+    }
+}
+
 async function editEntries(req, res){
     const {uid, planId, entries} = req.body;
     try {
@@ -255,6 +279,25 @@ async function getAllUsersOld(req, res) {
     }
     res.status(200).send({ data: allUsers });
 }
+async function activeUser(req, res){
+    const { uid } = req.body;
+    try {
+        await db
+            .collection('Users')
+            .doc(uid).set({ Status: true }, { merge: true });
+            res.status(200).send({ message: "user status updated successfully" })
+    } catch (error) {
+        res
+            .status(500)
+            .json({
+                error: {
+                    code: error,
+                    message: 'internal server error'
+                }
+            });
+    }
+
+}
 
 async function deleteUser(req, res) {
     const { uid } = req.body;
@@ -264,7 +307,7 @@ async function deleteUser(req, res) {
             console.log('Successfully deleted user');
             try {
                 db
-                    .collection('USERS')
+                    .collection('Users')
                     .doc(uid).set({ Status: false }, { merge: true }).then(() => {
                         res.status(200).send({ message: "user status updated successfully" })
                     }).catch((error) => {
@@ -278,6 +321,7 @@ async function deleteUser(req, res) {
                             });
                     })
             } catch (error) {
+                console.log(error);
                 res
                     .status(500)
                     .json({
@@ -379,5 +423,7 @@ module.exports = {
     editEntries,
     deleteUserPlan,
     getAllUsersOld,
+    activeUser,
+    activePlan
 };
 
